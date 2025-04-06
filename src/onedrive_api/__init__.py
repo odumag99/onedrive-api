@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 import dotenv
 import os
 from urllib.parse import quote
+from .token_getter import get_token
 
 dotenv.load_dotenv()
 app = FastAPI()
@@ -22,5 +23,5 @@ client_id={os.getenv("MICROSOFT_APP_CLIENT_ID")}
 
 @app.get("/oauth2/callback", status_code=200)
 async def get_code(code: str):
-    print(code)
+    get_token(code)
     return Response(status_code=200)
