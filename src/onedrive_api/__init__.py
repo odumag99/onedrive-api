@@ -6,11 +6,15 @@ from urllib.parse import quote
 from .token_getter import get_token
 
 dotenv.load_dotenv()
+
+OAUTH_REDIRECT_URI=f"http://{os.getenv('FRONT_URL')}/oauth2/callback"
+
 app = FastAPI()
+
 
 @app.get("/login")
 async def login():
-    redirect_uri = quote(f"http://{os.getenv('FRONT_URL')}/oauth2/callback")
+    redirect_uri = quote(OAUTH_REDIRECT_URI)
     scope = quote("offline_access files.readwrite.all")
     return RedirectResponse(
         url = f"""https://login.microsoftonline.com/common/oauth2/v2.0/authorize?
