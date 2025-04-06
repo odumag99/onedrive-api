@@ -9,12 +9,13 @@ app = FastAPI()
 
 @app.get("/login")
 async def login():
+    redirect_uri = quote(f"http://{os.getenv('FRONT_URL')}/oauth2/callback")
     scope = quote("offline_access files.readwrite.all")
     return RedirectResponse(
-        url = f"""https://login.microsoftonline.com/common/oauth2/v2,0/authorize?
+        url = f"""https://login.microsoftonline.com/common/oauth2/v2.0/authorize?
 client_id={os.getenv("MICROSOFT_APP_CLIENT_ID")}
 &response_type=code
-&redirect_uri=http://{os.getenv("FRONT_URL")}/oauth2/callback
+&redirect_uri={redirect_uri}
 &response_model=query
 &scope={scope}"""
     )
