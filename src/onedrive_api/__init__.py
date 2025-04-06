@@ -26,5 +26,5 @@ client_id={os.getenv("MICROSOFT_APP_CLIENT_ID")}
 
 @app.get("/oauth2/callback", status_code=200)
 async def get_code(code: str):
-    get_token(code)
-    return Response(status_code=200)
+    token_response = await get_token(code)
+    return token_response
