@@ -1,6 +1,6 @@
 import httpx
 import os
-from .__init__ import OAUTH_REDIRECT_URI
+from .common import OAUTH_REDIRECT_URI
 
 async def get_token(code: str):
     url = "https://login.microsoftonline.com/common/oauth2/v2.0/token"

@@ -1,3 +1,4 @@
+from .common import OAUTH_REDIRECT_URI
 from fastapi import FastAPI, Query, Response
 from fastapi.responses import RedirectResponse
 import dotenv
@@ -6,8 +7,6 @@ from urllib.parse import quote
 from .token_getter import get_token
 
 dotenv.load_dotenv()
-
-OAUTH_REDIRECT_URI=f"http://{os.getenv('FRONT_URL')}/oauth2/callback"
 
 app = FastAPI()
 
