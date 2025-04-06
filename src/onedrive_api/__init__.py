@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query, Response
 from fastapi.responses import RedirectResponse
 import dotenv
 import os
@@ -19,3 +19,8 @@ client_id={os.getenv("MICROSOFT_APP_CLIENT_ID")}
 &response_model=query
 &scope={scope}"""
     )
+
+@app.get("/oauth2/callback", status_code=200)
+async def get_code(code: str):
+    print(code)
+    return Response(status_code=200)
