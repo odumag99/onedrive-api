@@ -1,3 +1,4 @@
 .env
 .vscode/settings.json
 /src/onedrive_api/__pycache__
+/openssl-certs
