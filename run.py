@@ -1,7 +1,5 @@
-import onedrive_token_getter.server as fastapi
 import uvicorn
 
-app = fastapi.server
 
 if __name__ == "__main__":
     uvicorn.run(app="src.onedrive_token_getter:app",
