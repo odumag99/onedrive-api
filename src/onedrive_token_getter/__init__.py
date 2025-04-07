@@ -4,16 +4,16 @@ import asyncio
 import threading
 import time
 
-from .client import get_code, get_access_refresh_token
-
 # 멀티스레드 공유 객체 생성
+# 멀티스레드에서 구동되는 server와 값을 공유받을 수 있도록 함.
 shared_val = {} # 딕셔너리는 Thread-safe(스레드간 공유되는) 객체
 
 # 이벤트 생성
+# server에서 호출하면 get_code() 함수가 재개될 수 있도록 Event 생성
 is_code_setted = threading.Event()
 
 config = uvicorn.Config(
-    app = "src.onedrive_token_getter.code_getter_server:server",
+    app = "src.onedrive_token_getter.code_getter_server_app:app", # uvicorn app 정보
     port = 8000,
     reload=True,
     ssl_certfile="./openssl-certs/cert.pem", 
@@ -22,31 +22,41 @@ config = uvicorn.Config(
 server = uvicorn.Server(config)
 
 def run_server():
-    print("서버를 생성합니다.")
+    '''
+    FastAPI 서버를 생성 및 실행하기 위한 Thread target 함수.
+    '''
     asyncio.run(server.serve())
-    print("서버 생성이 완료되었습니다.")
     
 
 def get_code():
-    # code_getter_server 자동 생성
+    '''
+    Microsoft로부터 Authentication code를 받기 위한 서버를 생성하고 code를 반환받는 함수.
+    '''
+    #TODO 서버 정상 종료를 위한 KeyboardInterrupt 예외 처리
+
+    # code_getter_server 생성 및 실행
+    # 별도 서버를 생성하기 위한 스레드
+    print("서버를 생성하고 구동합니다.")
     code_getter_server_thread = threading.Thread(target=run_server, daemon=True)
     code_getter_server_thread.start()
 
-    # 로그인 창 실행
+    #TODO 로그인 창 실행
 
     # get_code 완료 확인 때까지 wait
     print("code 반환 대기중입니다.")
     is_code_setted.wait()
 
-    # code 반환 완료 후 안내내
+    # code 반환 완료 후 안내
     print(f"code가 반환되었습니다. code: {shared_val["code"]}")
 
     # 서버 종료
-    print("서버를 종료합니다.")
     server.should_exit = True
-    print("서버 종료 시그널을 보냈습니다.")
-
+    print("서버를 종료를 위해 서버버 종료 시그널을 보냈습니다.")
+    
+    # 종료를 위한 time.sleep()
     time.sleep(5)
+
+    return shared_val["code"]
     
 
     # code 얻어 access_token, refresh_token
