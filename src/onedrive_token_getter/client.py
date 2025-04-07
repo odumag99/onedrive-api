@@ -43,11 +43,11 @@ async def get_code() -> str:
             url = TOKEN_GETTER_SERVER_URI + f"/code"
         )
 
-        res.raise_for_status()
+    res.raise_for_status()
 
-        res_json = res.json()
+    res_json = res.json()
 
-        if not res_json["code"]:
-            raise Exception(res)
-        
-        return res_json["code"]
+    if not res_json["code"]:
+        raise Exception(res)
+    
+    return res_json["code"]
