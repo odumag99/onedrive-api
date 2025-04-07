@@ -30,7 +30,7 @@ client_id={os.getenv("MICROSOFT_APP_CLIENT_ID")}
 @server.get("/oauth2/callback", status_code=200)
 async def set_code(code: str):
     CODE = code
-    return Response(status_code=status.HTTP_200_OK)
+    return {"code":code}
 
 @server.get("/code")
 async def get_code():
