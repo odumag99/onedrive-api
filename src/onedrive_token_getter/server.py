@@ -4,11 +4,12 @@ from fastapi.responses import RedirectResponse
 import dotenv
 import os
 from urllib.parse import quote
-from .token_getter import get_access_refresh_token
+from .client import get_access_refresh_token
 
 dotenv.load_dotenv()
 
 app = FastAPI()
+CODE = os.getenv("ONEDRIVE_AUTHENTICATION_CODE")
 ACCESS_TOKEN = os.getenv("ONEDRIVE_ACCESS_TOKEN")
 REFRESH_TOKEN = os.getenv("ONEDRIVE_REFRESH_TOKEN")
 
@@ -27,9 +28,15 @@ client_id={os.getenv("MICROSOFT_APP_CLIENT_ID")}
     )
 
 @app.get("/oauth2/callback", status_code=200)
-async def set_access_refresh_token(code: str):
-    ACCESS_TOKEN, REFRESH_TOKEN = await get_access_refresh_token(code)
+async def set_code(code: str):
+    CODE = code
     return Response(status_code=status.HTTP_200_OK)
+
+@app.get("/code")
+async def get_code():
+    if not CODE:
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
+    return {"code" : CODE}
 
 @app.get("/tokens")
 async def get_tokens():
