@@ -4,11 +4,16 @@ import asyncio
 import threading
 import time
 
-from .code_getter_server import CODE
 from .client import get_code, get_access_refresh_token
 
+# 멀티스레드 공유 객체 생성
+shared_val = {} # 딕셔너리는 Thread-safe(스레드간 공유되는) 객체
+
+# 이벤트 생성
+is_code_setted = threading.Event()
+
 config = uvicorn.Config(
-    app = "code_getter_server:server",
+    app = "src.onedrive_token_getter.code_getter_server:server",
     port = 8000,
     reload=True,
     ssl_certfile="./openssl-certs/cert.pem", 
@@ -31,9 +36,10 @@ def get_code():
 
     # get_code 완료 확인 때까지 wait
     print("code 반환 대기중입니다.")
-    while CODE is None:
-        pass
-    print(f"code가 반환되었습니다. code: {CODE}")
+    is_code_setted.wait()
+
+    # code 반환 완료 후 안내내
+    print(f"code가 반환되었습니다. code: {shared_val["code"]}")
 
     # 서버 종료
     print("서버를 종료합니다.")

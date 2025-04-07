@@ -1,15 +1,16 @@
 from .common import OAUTH_REDIRECT_URI
-from fastapi import FastAPI, Query, Response, status
+from fastapi import FastAPI, Query, Response, status, BackgroundTasks
 from fastapi.responses import RedirectResponse
 import dotenv
 import os
 from urllib.parse import quote
+
 from .client import get_access_refresh_token
+from . import shared_val, is_code_setted
 
 dotenv.load_dotenv()
 
 server = FastAPI()
-CODE = os.getenv("ONEDRIVE_AUTHENTICATION_CODE")
 ACCESS_TOKEN = os.getenv("ONEDRIVE_ACCESS_TOKEN")
 REFRESH_TOKEN = os.getenv("ONEDRIVE_REFRESH_TOKEN")
 
@@ -27,16 +28,20 @@ client_id={os.getenv("MICROSOFT_APP_CLIENT_ID")}
 &scope={scope}"""
     )
 
+def is_code_setted_set():
+    is_code_setted.set()
+
 @server.get("/oauth2/callback", status_code=200)
-async def set_code(code: str):
-    CODE = code
-    return {"code":code}
+async def set_code(code: str, backgroundtasks: BackgroundTasks):
+    shared_val["code"] = code
+    backgroundtasks.add_task(is_code_setted_set)
+    return {"code":shared_val["code"]}
 
 @server.get("/code")
 async def get_code():
-    if not CODE:
+    if not  shared_val["code"]:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
-    return {"code" : CODE}
+    return {"code" :  shared_val["code"]}
 
 @server.get("/tokens")
 async def get_tokens():
