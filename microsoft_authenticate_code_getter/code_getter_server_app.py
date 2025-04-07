@@ -5,7 +5,7 @@ import dotenv
 import os
 from urllib.parse import quote
 
-from . import shared_val, is_code_setted
+from . import __shared_val, __is_code_setted
 
 dotenv.load_dotenv()
 
@@ -26,18 +26,18 @@ client_id={os.getenv("MICROSOFT_APP_CLIENT_ID")}
     )
 
 def is_code_setted_set():
-    is_code_setted.set()
+    __is_code_setted.set()
 
 @app.get("/oauth2/callback", status_code=200)
 async def set_code(code: str, backgroundtasks: BackgroundTasks):
-    shared_val["code"] = code
+    __shared_val["code"] = code
     backgroundtasks.add_task(is_code_setted_set)
-    return { "code" : shared_val["code"] }
+    return { "code" : __shared_val["code"] }
 
 @app.get("/code")
 async def get_code():
-    if not shared_val["code"]:
+    if not __shared_val["code"]:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
-    return { "code" : shared_val["code"] }
+    return { "code" : __shared_val["code"] }
 
 

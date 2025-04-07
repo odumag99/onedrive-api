@@ -6,26 +6,26 @@ import time
 
 # 멀티스레드 공유 객체 생성
 # 멀티스레드에서 구동되는 server와 값을 공유받을 수 있도록 함.
-shared_val = {} # 딕셔너리는 Thread-safe(스레드간 공유되는) 객체
+__shared_val = {} # 딕셔너리는 Thread-safe(스레드간 공유되는) 객체
 
 # 이벤트 생성
 # server에서 호출하면 get_code() 함수가 재개될 수 있도록 Event 생성
-is_code_setted = threading.Event()
+__is_code_setted = threading.Event()
 
-config = uvicorn.Config(
-    app = "src.onedrive_token_getter.code_getter_server_app:app", # uvicorn app 정보
+__config = uvicorn.Config(
+    app = "microsoft_authenticate_code_getter.code_getter_server_app:app", # uvicorn app 정보
     port = 8000,
     reload=True,
     ssl_certfile="./openssl-certs/cert.pem", 
     ssl_keyfile="./openssl-certs/key.pem"
 )
-server = uvicorn.Server(config)
+__server = uvicorn.Server(__config)
 
-def run_server():
+def __run_server():
     '''
     FastAPI 서버를 생성 및 실행하기 위한 Thread target 함수.
     '''
-    asyncio.run(server.serve())
+    asyncio.run(__server.serve())
     
 
 def get_code():
@@ -37,33 +37,23 @@ def get_code():
     # code_getter_server 생성 및 실행
     # 별도 서버를 생성하기 위한 스레드
     print("서버를 생성하고 구동합니다.")
-    code_getter_server_thread = threading.Thread(target=run_server, daemon=True)
+    code_getter_server_thread = threading.Thread(target=__run_server, daemon=True)
     code_getter_server_thread.start()
 
     #TODO 로그인 창 실행
 
     # get_code 완료 확인 때까지 wait
     print("code 반환 대기중입니다.")
-    is_code_setted.wait()
+    __is_code_setted.wait()
 
     # code 반환 완료 후 안내
-    print(f"code가 반환되었습니다. code: {shared_val["code"]}")
+    print(f"code가 반환되었습니다. code: {__shared_val["code"]}")
 
     # 서버 종료
-    server.should_exit = True
-    print("서버를 종료를 위해 서버버 종료 시그널을 보냈습니다.")
+    __server.should_exit = True
+    print("서버를 종료를 위해 서버 종료 시그널을 보냈습니다.")
     
     # 종료를 위한 time.sleep()
     time.sleep(5)
 
-    return shared_val["code"]
-    
-
-    # code 얻어 access_token, refresh_token
-    # code = get_code()
-
-    # refresh_token, access_token = get_access_refresh_token()
-    # print({
-    #     "refresh_token" : refresh_token,
-    #     "access_token" : access_token
-    # })
+    return __shared_val["code"]
