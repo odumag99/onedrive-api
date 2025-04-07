@@ -1,10 +1,10 @@
-import src.onedrive_api as fastapi
+import onedrive_token_getter.server as fastapi
 import uvicorn
 
 app = fastapi.app
 
 if __name__ == "__main__":
-    uvicorn.run(app="src.onedrive_api:app",
+    uvicorn.run(app="src.onedrive_token_getter:app",
                 port=8000,
                 reload=True, 
                 ssl_certfile="./openssl-certs/cert.pem", 

@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [tool.poetry]
-packages = [{include = "onedrive_api", from = "src"}]
+packages = [{include = "onedrive_token_getter", from = "src"}]
 
 
 [build-system]

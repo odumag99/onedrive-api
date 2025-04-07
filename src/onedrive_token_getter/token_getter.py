@@ -5,7 +5,7 @@ from .common import OAUTH_REDIRECT_URI
 
 dotenv.load_dotenv()
 
-async def get_token(code: str):
+async def get_access_refresh_token(code: str):
     url = "https://login.microsoftonline.com/common/oauth2/v2.0/token"
     client_id = os.getenv("MICROSOFT_APP_CLIENT_ID")
     grant_type = "authorization_code"
@@ -29,5 +29,8 @@ async def get_token(code: str):
         )
     res.raise_for_status()
 
-    
-    return res.json()
+    res_json = res.json()
+    if not res_json["access_token"] or not res_json["refresh_token"]:
+        raise Exception(res)
+
+    return res_json["access_token"], res_json["refresh_token"]
